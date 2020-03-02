@@ -1,11 +1,10 @@
-﻿using System;
-using System.CommandLine;
-using System.CommandLine.Builder;
-using System.IO;
-using System.Threading.Tasks;
+﻿using komp.Modules.AddOn;
+using komp.Modules.Component;
+using komp.Modules.Config;
+using komp.Modules.Template;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace komp
 {
@@ -15,13 +14,17 @@ namespace komp
         {
             var services = new ServiceCollection()
                 .AddOptions()
-                .Configure<AppServiceOptions>(Configuration.GetSection("AppService"))
+                .Configure<KompOptions>(Configuration.GetSection("Options"))
                 .AddLogging()
-                .AddSingleton<AppService>();
+                .AddSingleton<KompService>()
+                .AddSingleton<AddOnService>()
+                .AddSingleton<ComponentService>()
+                .AddSingleton<ConfigService>()
+                .AddSingleton<TemplateService>();
 
-            var appService = services.BuildServiceProvider().GetService<AppService>();
+            var kompService = services.BuildServiceProvider().GetService<KompService>();
 
-            return appService.Run(args);
+            return kompService.Run(args);
         }
 
         static IConfiguration Configuration => new ConfigurationBuilder()
